@@ -39,6 +39,10 @@ client-xray: ## Build client with real xray-core
 	@mkdir -p $(BIN_DIR)
 	CGO_ENABLED=0 $(GOBUILD) $(LDFLAGS) -tags "xray" -o $(CLIENT) ./cmd/entropy-client
 
+client-exec: ## Build client that shells out to system xray binary
+	@mkdir -p $(BIN_DIR)
+	CGO_ENABLED=0 $(GOBUILD) $(LDFLAGS) -tags "exec" -o $(CLIENT) ./cmd/entropy-client
+
 test: ## Run all tests
 	$(GOTEST) -v -count=1 -race ./...
 

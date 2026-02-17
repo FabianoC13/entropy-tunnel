@@ -48,3 +48,8 @@ coverage.html
 
 # Release
 release/
+
+# Proof files (screenshots, recordings)
+proof_*.png
+proof_*.mp4
+proof_*/

@@ -1,0 +1,13 @@
+# Production client configuration
+# Copy this file to client.yaml and fill in your server details
+
+server: "YOUR_SERVER_IP:443"
+uuid: "YOUR_UUID"
+sni: "www.google.com"
+public_key: "YOUR_PUBLIC_KEY"
+short_id: "abcdef01"
+fingerprint: "chrome"
+local_listen: "127.0.0.1:1080"
+api_listen: "127.0.0.1:9876"
+log_level: "info"
+sports_mode: false
