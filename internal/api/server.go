@@ -95,15 +95,19 @@ func (s *Server) handleStatus(w http.ResponseWriter, r *http.Request) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
+	// Check actual engine status, not just the connected flag
+	engineStatus := s.engine.Status()
+	isConnected := engineStatus == tunnel.StatusRunning
+
 	resp := statusResponse{
-		Connected:  s.connected,
-		Status:     string(s.engine.Status()),
+		Connected:  isConnected,
+		Status:     string(engineStatus),
 		SportsMode: s.sportsMode,
 		BytesSent:  s.bytesSent,
 		BytesRecv:  s.bytesRecv,
 	}
 
-	if s.connected && !s.startTime.IsZero() {
+	if isConnected && !s.startTime.IsZero() {
 		resp.Uptime = time.Since(s.startTime).Truncate(time.Second).String()
 	}
 
