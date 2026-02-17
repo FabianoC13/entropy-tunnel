@@ -26,6 +26,27 @@ log('INFO', `EntropyTunnel GUI starting — log: ${LOG_PATH}`);
 log('INFO', `Electron ${process.versions.electron}, Node ${process.versions.node}, Chrome ${process.versions.chrome}`);
 log('INFO', `Platform: ${process.platform} ${process.arch}`);
 
+// ── Path Resolution ──────────────────────────────────────────────────
+// In packaged app: binary is in Contents/Resources/bin/
+// In dev mode:     binary is in ../bin/ relative to gui/
+function getClientBinPath() {
+  if (app.isPackaged) {
+    const p = path.join(process.resourcesPath, 'bin', 'entropy-client');
+    log('INFO', `Packaged mode — binary path: ${p}`);
+    return p;
+  }
+  const p = path.join(__dirname, '..', 'bin', 'entropy-client');
+  log('INFO', `Dev mode — binary path: ${p}`);
+  return p;
+}
+
+function getDefaultConfigPath() {
+  if (app.isPackaged) {
+    return path.join(process.resourcesPath, 'configs', 'client-example.yaml');
+  }
+  return path.join(__dirname, '..', 'configs', 'client-example.yaml');
+}
+
 // ── App State ────────────────────────────────────────────────────────
 let mainWindow;
 let clientProcess = null;
@@ -92,8 +113,8 @@ app.on('window-all-closed', () => {
 // ── IPC Handlers ─────────────────────────────────────────────────────
 ipcMain.handle('connect', async (event, configPath) => {
   try {
-    const clientBin = path.join(__dirname, '..', 'bin', 'entropy-client');
-    const cfgPath = configPath || path.join(__dirname, '..', 'configs', 'client-example.yaml');
+    const clientBin = getClientBinPath();
+    const cfgPath = configPath || getDefaultConfigPath();
 
     log('INFO', `Connecting with binary: ${clientBin}`);
     log('INFO', `Config: ${cfgPath}`);

@@ -4,7 +4,7 @@ module.exports = {
         executableName: 'entropy-tunnel',
         icon: './icon',
         asar: true,
-        extraResource: ['../bin'],
+        extraResource: ['../bin', '../configs'],
     },
     makers: [
         {
