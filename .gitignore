@@ -1,0 +1,50 @@
+# Binaries
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Output
+*.out
+*.prof
+
+# Go workspace
+go.work
+go.work.sum
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Config with secrets
+configs/server.yaml
+configs/client.yaml
+*.key
+*.pem
+
+# Docker
+.docker/
+
+# GUI (Electron)
+gui/node_modules/
+gui/out/
+gui/.webpack/
+
+# Coverage
+coverage.out
+coverage.html
+
+# Release
+release/

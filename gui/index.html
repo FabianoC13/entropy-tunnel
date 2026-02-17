@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EntropyTunnel</title>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body>
+    <!-- Title bar -->
+    <div class="titlebar" id="titlebar">
+        <span class="titlebar-title">EntropyTunnel</span>
+        <div class="titlebar-controls">
+            <button class="titlebar-btn minimize" onclick="entropy.minimize()">─</button>
+            <button class="titlebar-btn close" onclick="entropy.close()">✕</button>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="container">
+        <!-- Status ring -->
+        <div class="status-section">
+            <div class="status-ring" id="statusRing">
+                <div class="status-ring-inner">
+                    <div class="status-icon" id="statusIcon">⚡</div>
+                    <div class="status-text" id="statusText">Disconnected</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats" id="statsSection" style="display:none;">
+            <div class="stat">
+                <span class="stat-label">Uptime</span>
+                <span class="stat-value" id="uptime">00:00:00</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Sent</span>
+                <span class="stat-value" id="bytesSent">0 B</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Received</span>
+                <span class="stat-value" id="bytesRecv">0 B</span>
+            </div>
+        </div>
+
+        <!-- Connect button -->
+        <button class="connect-btn" id="connectBtn" onclick="toggleConnect()">
+            <span class="connect-btn-text" id="connectBtnText">Connect</span>
+        </button>
+
+        <!-- Sports Mode toggle -->
+        <div class="toggle-row">
+            <div class="toggle-info">
+                <span class="toggle-label">⚽ Sports Mode</span>
+                <span class="toggle-desc">Low latency + extra noise</span>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="sportsModeToggle" onchange="toggleSportsMode()" />
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+
+        <!-- Config section -->
+        <div class="config-section">
+            <button class="config-btn" onclick="importConfig()">📄 Import Config</button>
+            <button class="config-btn" onclick="scanQR()">📷 Scan QR Code</button>
+        </div>
+
+        <!-- Log area -->
+        <div class="log-area" id="logArea">
+            <div class="log-entry">Ready to connect.</div>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+
+</html>

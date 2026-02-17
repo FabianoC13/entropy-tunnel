@@ -1,0 +1,38 @@
+# EntropyTunnel Server Configuration
+# ===================================
+#
+# This is an example configuration. Generate keys with:
+#   make generate-keys
+
+listen: ":443"
+protocol: vless
+uuid: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+
+# XTLS-Reality settings
+reality:
+  # The SNI target — traffic will look like it's going to this domain.
+  # Choose a popular site with TLS 1.3 and H2 support.
+  sni: "www.google.com"
+
+  # X25519 key pair for Reality handshake.
+  # Generate with: make generate-keys
+  private_key: "YOUR_PRIVATE_KEY_HERE"
+  public_key: "YOUR_PUBLIC_KEY_HERE"
+
+  # Short IDs for client authentication (hex strings, 1-16 chars).
+  short_ids:
+    - "abcdef01"
+    - "12345678"
+
+# uTLS browser fingerprint. Options: chrome, firefox, safari, edge,
+# chrome-120, firefox-121, random, randomized
+fingerprint: "chrome"
+
+# Protocol fallbacks — tried when primary fails or for specific paths
+fallbacks:
+  - protocol: trojan
+    listen: ":8443"
+    transport: ws
+    path: "/ws"
+
+log_level: "info"

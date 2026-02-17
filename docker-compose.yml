@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  entropy-server:
+    build: .
+    container_name: entropy-server
+    ports:
+      - "443:443"
+      - "8443:8443"
+    volumes:
+      - ./configs/server-example.yaml:/etc/entropy-tunnel/config.yaml:ro
+    restart: unless-stopped
+    networks:
+      - entropy-net
+
+  # Optional: nginx decoy site for Reality camouflage testing
+  nginx-decoy:
+    image: nginx:alpine
+    container_name: entropy-decoy
+    ports:
+      - "8080:80"
+    volumes:
+      - ./configs/decoy-index.html:/usr/share/nginx/html/index.html:ro
+    restart: unless-stopped
+    networks:
+      - entropy-net
+
+networks:
+  entropy-net:
+    driver: bridge

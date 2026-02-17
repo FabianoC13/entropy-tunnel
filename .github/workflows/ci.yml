@@ -1,0 +1,180 @@
+name: EntropyTunnel CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - run: go mod download
+      - run: go vet ./...
+      - run: go test -v -race -coverprofile=coverage.out ./...
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.out
+
+  build:
+    name: Build (${{ matrix.os }}/${{ matrix.arch }})
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - os: linux
+            arch: amd64
+          - os: linux
+            arch: arm64
+          - os: darwin
+            arch: amd64
+          - os: darwin
+            arch: arm64
+          - os: windows
+            arch: amd64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Build server + client
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+          CGO_ENABLED: 0
+        run: |
+          SUFFIX=""
+          if [ "${{ matrix.os }}" = "windows" ]; then SUFFIX=".exe"; fi
+          go build -ldflags "-s -w -X main.version=${{ github.ref_name }} -X main.commit=${{ github.sha }}" \
+            -o entropy-server-${{ matrix.os }}-${{ matrix.arch }}${SUFFIX} ./cmd/entropy-server
+          go build -ldflags "-s -w -X main.version=${{ github.ref_name }} -X main.commit=${{ github.sha }}" \
+            -o entropy-client-${{ matrix.os }}-${{ matrix.arch }}${SUFFIX} ./cmd/entropy-client
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: binaries-${{ matrix.os }}-${{ matrix.arch }}
+          path: entropy-*
+
+  gui:
+    name: GUI (${{ matrix.runner }})
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+    strategy:
+      matrix:
+        include:
+          - runner: macos-latest
+            platform: darwin
+          - runner: ubuntu-latest
+            platform: linux
+          - runner: windows-latest
+            platform: win32
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build Go client for GUI
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - run: |
+          mkdir -p bin
+          go build -ldflags "-s -w -X main.version=${{ github.ref_name }}" -o bin/entropy-client ./cmd/entropy-client
+
+      - name: Install GUI dependencies
+        working-directory: gui
+        run: npm install
+
+      - name: Build GUI
+        working-directory: gui
+        run: npm run make
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gui-${{ matrix.platform }}
+          path: gui/out/make/**
+
+  docker:
+    name: Docker
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: entropy-tunnel:latest
+
+  release:
+    name: Release
+    needs: [build, gui]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: binaries-*
+          merge-multiple: true
+          path: release-cli
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gui-*
+          merge-multiple: true
+          path: release-gui
+
+      - name: Collect release assets
+        run: |
+          mkdir -p release
+          cp release-cli/* release/ 2>/dev/null || true
+          find release-gui -type f \( -name "*.zip" -o -name "*.dmg" -o -name "*.deb" -o -name "*.exe" -o -name "*.nupkg" \) -exec cp {} release/ \; 2>/dev/null || true
+          cd release && sha256sum * > checksums.txt
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+          generate_release_notes: true
+          body: |
+            ## EntropyTunnel ${{ github.ref_name }}
+
+            Anti-censorship VPN with traffic camouflage, dynamic endpoint rotation, and P2P fallback.
+
+            ### Downloads
+            - **macOS**: `entropy-client-darwin-arm64` (Apple Silicon) / `entropy-client-darwin-amd64` (Intel)
+            - **Linux**: `entropy-client-linux-amd64` / `entropy-client-linux-arm64`
+            - **Windows**: `entropy-client-windows-amd64.exe`
+            - **GUI**: See platform-specific packages below
+
+            ### Quick Start
+            ```bash
+            chmod +x entropy-client-*
+            ./entropy-client connect --server YOUR_SERVER:443 --uuid YOUR_UUID --sni www.google.com --public-key YOUR_KEY --short-id abcdef01
+            ```
+
+            ### What's New
+            - VLESS + XTLS-Reality (indistinguishable from HTTPS)
+            - 12 browser fingerprints (Chrome, Firefox, Safari, Edge)
+            - ECH (Encrypted Client Hello) for SNI hiding
+            - Snowflake P2P emergency fallback
+            - Cloudflare Workers + AWS Lambda endpoint rotation
+            - Sports Mode (low-latency streaming)
+            - Desktop GUI (Electron)
+            - 62 tests passing

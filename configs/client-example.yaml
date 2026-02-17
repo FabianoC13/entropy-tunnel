@@ -1,0 +1,39 @@
+# EntropyTunnel Client Configuration
+# ====================================
+#
+# Connect to your EntropyTunnel server.
+# Run with: ./bin/entropy-client connect -c configs/client-example.yaml
+
+# Remote server address
+server: "your-server-ip:443"
+
+# VLESS UUID (must match server config)
+uuid: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+
+# SNI for Reality (must match server's reality.sni)
+sni: "www.google.com"
+
+# Server's Reality public key
+public_key: "YOUR_SERVER_PUBLIC_KEY_HERE"
+
+# Short ID (must be one of the server's short_ids)
+short_id: "abcdef01"
+
+# uTLS fingerprint — mimics this browser's TLS handshake
+# Options: chrome, firefox, safari, edge, random
+fingerprint: "chrome"
+
+# Local SOCKS5 proxy address
+local_listen: "127.0.0.1:1080"
+
+# Optional: local HTTP proxy (comment out to disable)
+# http_listen: "127.0.0.1:8080"
+
+# Sports Mode — enables low-latency + extra noise for streaming
+# Perfect for watching La Liga, Champions League, F1 without ISP blocks
+sports_mode: false
+
+# Local API address for GUI communication
+api_listen: "127.0.0.1:9876"
+
+log_level: "info"
