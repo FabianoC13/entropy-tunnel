@@ -42,9 +42,9 @@ function getClientBinPath() {
 
 function getDefaultConfigPath() {
   if (app.isPackaged) {
-    return path.join(process.resourcesPath, 'configs', 'client-example.yaml');
+    return path.join(process.resourcesPath, 'configs', 'client.yaml');
   }
-  return path.join(__dirname, '..', 'configs', 'client-example.yaml');
+  return path.join(__dirname, '..', 'configs', 'client.yaml');
 }
 
 // ── App State ────────────────────────────────────────────────────────
