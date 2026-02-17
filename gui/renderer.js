@@ -85,6 +85,31 @@ function scanQR() {
     addLog('QR scanning — coming in v0.2.0');
 }
 
+// Copy logs to clipboard
+async function copyLogs() {
+    const logEntries = Array.from(logArea.children);
+    const logText = logEntries.map(entry => entry.textContent).join('\n');
+    
+    try {
+        await navigator.clipboard.writeText(logText);
+        
+        // Show feedback
+        const copyBtn = document.getElementById('copyLogBtn');
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = '✅ Copied!';
+        copyBtn.classList.add('copied');
+        
+        setTimeout(() => {
+            copyBtn.textContent = originalText;
+            copyBtn.classList.remove('copied');
+        }, 2000);
+        
+        addLog('Logs copied to clipboard');
+    } catch (err) {
+        addLog('Failed to copy logs: ' + err.message);
+    }
+}
+
 // Status polling
 function startPolling() {
     statusPollInterval = setInterval(async () => {

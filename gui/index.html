@@ -72,8 +72,16 @@
         </div>
 
         <!-- Log area -->
-        <div class="log-area" id="logArea">
-            <div class="log-entry">Ready to connect.</div>
+        <div class="log-section">
+            <div class="log-header">
+                <span class="log-title">📋 Logs</span>
+                <button class="copy-log-btn" id="copyLogBtn" onclick="copyLogs()" title="Copy logs to clipboard">
+                    📄 Copy
+                </button>
+            </div>
+            <div class="log-area" id="logArea">
+                <div class="log-entry">Ready to connect.</div>
+            </div>
         </div>
     </div>
 
